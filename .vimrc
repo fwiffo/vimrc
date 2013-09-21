@@ -2,8 +2,14 @@
 " Phong's phabulous .vimrc
 " Original author - Thomas Schumm <phong@phong.org>
 "
-" Last modified: 2006-12-04: Thomas Schumm <phong@phong.org>
+" Last modified: 2013-09-21: Thomas Schumm <phong@phong.org>
 " =================================================================
+
+source ~/.vim/vimrc_work_before.vim
+source ~/.vim/vimrc_local_before.vim
+
+set nocompatible                " Make it no like vi
+syntax on
 
 " === Interface behavior options ================================== " {{{
 if &term == "konsole" || &term == "konsole-16color" || &term == "rxvt"
@@ -11,7 +17,6 @@ if &term == "konsole" || &term == "konsole-16color" || &term == "rxvt"
     set t_ts=]2;
     set t_fs=
 endif
-set nocp                        " Make it no like vi
 set nobackup                    " Don't create backup files
 set history=100                 " Remember 100 lines of history
 set viminfo='200,\"500,h
@@ -44,6 +49,7 @@ autocmd BufReadPost *
 
 " === Editing options (how to treat files, editor behavior) ======= " {{{
 set fileformats=unix,dos,mac    " By default, it doesn't see mac files
+set fileencodings=fileencodings=ucs-bom,utf-8,default,cp1252,latin1
 set backspace=2                 " Make backspaces work
 set tabstop=8                   " <tab> stops at 8
 set softtabstop=4               " behave as if we have tabs for backspaces
@@ -77,10 +83,15 @@ if version >= 600
     set virtualedit=all         " Move through space virtually
     syntax enable               " Turn on syntax highlighting
     color phong                 " Get my color settings
+    " No idea why I can't set this in my colors file
+    hi Pmenu ctermfg=13 ctermbg=8 cterm=NONE
+    hi PmenuSel ctermfg=11 ctermbg=7 cterm=NONE
 else
     set listchars=eol:\ ,extends:>,tab:>-
     syntax on
     so ~/.vim/colors/phong.vim  " This works in older versions of vim
+    hi Pmenu ctermfg=13 ctermbg=8 cterm=NONE
+    hi PmenuSel ctermfg=11 ctermbg=7 cterm=NONE
 endif
 
 set foldmethod=marker           " Default unless overried by a plugin
@@ -123,7 +134,6 @@ if dotpos <= 0
 else
     let shorthost = strpart($HOSTNAME, 0, dotpos)
 endif
-let shorthost = $HOSTNAME
 let title_front = "|VIM|" . $USER . "@" . shorthost . "|"
 unlet dotpos shorthost
 
@@ -146,8 +156,6 @@ let perl_string_as_statement = 1
 let perl_no_sync_on_sub = 1
 let perl_no_sync_on_global_var = 1
 let python_highlight_all = 1
-let php_autoformatcomment = 0
-" let php_folding=1
 
 " For some reason these haven't been automatic...
 autocmd BufRead *.xhtml set ft=xhtml
@@ -158,40 +166,28 @@ filetype plugin indent on
 " Some controls over syntax highlighting and whatnot Some configurations that
 " vary depending on filetype, I wish I had the will power to unify these into
 " a single style
-autocmd FileType perl,php,python,vim,sh,c,cpp,htmlcheetah,javascript,css set sw=4 ts=8 sts=4 et ai
-autocmd BufEnter *.php set indentexpr=
+autocmd FileType perl,python,vim,sh,c,cpp,htmlcheetah,javascript,css set sw=4 ts=8 sts=4 et ai
+autocmd FileType go set sw=4 ts=4 sts=4 noet ai
 autocmd FileType c,cpp set si
-autocmd FileType grub,fstab,conf,xf86conf set tw=0 ts=8 sts=8 sw=8 ai noet
+autocmd FileType grub,fstab,xf86conf set tw=0 ts=8 sts=8 sw=8 ai noet
+autocmd FileType conf set tw=0 ts=8 sts=8 sw=8 ai et
 autocmd FileType xhtml,html,xml set sw=4 ts=8 sts=4 noai tw=0 indentkeys=o,O
-autocmd Filetype php,htmlcheetah,sql set tw=0
-" autocmd FileType xhtml,html,xml set fileencoding=utf-8
-" autocmd FileType javascript,css set noet
+autocmd FileType htmlcheetah,sql set tw=0
 
-autocmd FileType python,php,perl,sh  set commentstring=\ #\ %s
+" Commentstrings for folds and such
+autocmd FileType python,perl,sh      set commentstring=\ #\ %s
 autocmd FileType htmlcheetah         set commentstring=##\ %s
 autocmd FileType vim                 set commentstring=\ \"\ %s
 autocmd FileType c,cpp,javascript    set commentstring=\ /*\ %s\ */
 autocmd FileType xhml,html,xhtml     set commentstring=\ <!--\ %s\ -->
 autocmd FileType sql                 set commentstring=\ --\ %s
+
 " Comment re-wrapping mappings
-autocmd FileType python,php,perl,sh  map g<C-J> ?^\s*[^ \t\#]<cr>jv/^\s*[^ \t\#]<cr>gq
+autocmd FileType python,perl,sh      map g<C-J> ?^\s*[^ \t\#]<cr>jv/^\s*[^ \t\#]<cr>gq
 autocmd FileType vim                 map g<C-J> ?^\s*[^ \t\"]<cr>jv/^\s*[^ \t\"]<cr>gq
 autocmd FileType c,cpp               map g<C-J> ?^\s*\/?[^ \t\/]<cr>jv/^\s*\/?[^ \t\/]<cr>gq
 " Auto formatting options
 autocmd FileType c,cpp,perl,python,vim,sh set fo-=t fo+=rqn
-autocmd BufEnter *.php set fo-=o
-
-autocmd FileType python,perl,php,sh   imap #M # vim:ts=8:sts=4:sw=4:et:<esc>:filetype detect<cr>o
-autocmd FileType htmlcheetah          imap #M ## vim:ts=8:sts=4:sw=4:et:<esc>:filetype detect<cr>o
-autocmd FileType vim                  imap #M " vim:ts=8:sts=4:sw=4:et:<esc>:filetype detect<cr>o
-autocmd FileType c,cpp,javascript,css imap #M /* vim: set ts=8 sts=4 sw=4 et : */<esc>:filetype detect<cr>o
-autocmd FileType xml,html,xhtml       imap #M <!-- vim: set ts=8 sts=4 sw=4 et : --><esc>:filetype detect<cr>o
-
-autocmd FileType python,perl,php,sh   imap #W # vim:ts=4:sts=4:sw=4:noet:<esc>:filetype detect<cr>o
-autocmd FileType python,perl,php,sh   imap #W ## vim:ts=4:sts=4:sw=4:noet:<esc>:filetype detect<cr>o
-autocmd FileType vim                  imap #W " vim:ts=4:sts=4:sw=4:noet:<esc>:filetype detect<cr>o
-autocmd FileType c,cpp,javascript,css imap #W /* vim: set ts=4 sts=4 sw=4 noet : */<esc>:filetype detect<cr>o
-autocmd FileType xml,html,xhtml       imap #W <!-- vim: set ts=4 sts=4 sw=4 noet : --><esc>:filetype detect<cr>o
 
 " ================================================================= " }}}
 
@@ -293,3 +289,7 @@ map <Left> <C-w>h
 map <Up> <C-w>k
 map <Down> <C-w>j
 " ================================================================= " }}}
+
+source ~/.vim/vimrc_work_after.vim
+source ~/.vim/vimrc_local_after.vim
+
