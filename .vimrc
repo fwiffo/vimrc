@@ -1,8 +1,6 @@
 " =================================================================
 " Phong's phabulous .vimrc
 " Original author - Thomas Schumm <phong@phong.org>
-" I hereby place this file in the public domain.  Feel free to
-" copy, redistribute, modify or mangle it however you desire.
 "
 " Last modified: 2006-12-04: Thomas Schumm <phong@phong.org>
 " =================================================================
