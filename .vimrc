@@ -58,23 +58,17 @@ endif
 syntax enable
 set background=dark             " Assumes black terminal background
 if has("gui_running")
-    color fwiffo_gui
+    color jellybeans
 elseif &t_Co >= 16777216
-    color fwiffo_24bit
+    color jellybeans
 elseif &t_Co >= 65536
-    color fwiffo_16bit
+    color jellybeans
 elseif &t_Co >= 256
-    color fwiffo_256
+    color jellybeans
 elseif &t_Co >= 16
     color fwiffo_16
 elseif &t_Co >=8
     color fwiffo_8
-endif
-
-" No idea why I can't set this in my colors file
-if &t_Co >=8
-    hi Pmenu ctermfg=13 ctermbg=8 cterm=NONE
-    hi PmenuSel ctermfg=11 ctermbg=7 cterm=NONE
 endif
 " ================================================================= " }}}
 

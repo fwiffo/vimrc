@@ -1,0 +1,6 @@
+[submodule "thirdparty/jellybeans"]
+	path = thirdparty/jellybeans
+	url = https://github.com/nanotech/jellybeans.vim.git
+[submodule "thirdparty/codeschool"]
+	path = thirdparty/codeschool
+	url = https://github.com/29decibel/codeschool-vim-theme.git

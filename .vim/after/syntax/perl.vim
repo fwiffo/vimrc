@@ -5,4 +5,4 @@
 syn match perlSpecialChars /[!%^&\*\-+=\\|~;:,.<>?\/]/
 syn match perlSpecialChars /[ \t\r\n\'\"]\@<=x[ \t\r\n0-9]\@=/
 syn keyword perlTodo TODO: TBD: FIXME: XXX: contained
-hi def link perlSpecialChars mySpecialChars
+hi def link perlSpecialChars Operator
