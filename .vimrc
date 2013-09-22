@@ -1,98 +1,137 @@
-" =================================================================
-" Phong's phabulous .vimrc
-" Original author - Thomas Schumm <phong@phong.org>
-"
-" Last modified: 2013-09-21: Thomas Schumm <phong@phong.org>
-" =================================================================
-
-source ~/.vim/vimrc_work_before.vim
-source ~/.vim/vimrc_local_before.vim
+" =============================================================================
+" Author - Tom Schumm <phong@phong.org>
+" =============================================================================
 
 set nocompatible                " Make it no like vi
 syntax on
 
-" === Interface behavior options ================================== " {{{
+source ~/.vim/vimrc_work_before.vim
+
+" === Terminal behavior fixes ===================================== " {{{
+
 if &term == "konsole" || &term == "konsole-16color" || &term == "rxvt"
     " Fix titles if we don't have these set for some stupid reason
     set t_ts=]2;
     set t_fs=
 endif
-set nobackup                    " Don't create backup files
-set history=100                 " Remember 100 lines of history
-set viminfo='200,\"500,h
-set wildmode=longest,list       " Behavior of tab key when hit first, second
-set showmatch                   " Brief jump to matching parens
-set matchtime=3                 " I said BRIEF
-set ignorecase                  " make searching easier
-set smartcase                   " unless we're cool
-set showcmd                     " Show commands as you type them
-" Dictionary, thesaurus to use for <C-X><C-K>,<C-T>
-set dictionary+=/usr/dict/mobywords,/usr/dict/mobynames,/usr/dict/mobyplaces
-if version >= 600
-    set thesaurus+=/usr/dict/mobythesaurus
+
+" Permits use of 16 colors on certain terminals via blink attribute
+if &term == "cygwin" || &term == "putty" || &term == "rxvt"
+    set t_Co=16
+    set t_AF=[3%{7}%p1%&%d%{7}%p1%<%Pa%?%ga%t;1%;m
+    set t_AB=[4%{7}%p1%&%d%{7}%p1%<%Pa%?%ga%t;5%;m
 endif
-"helptags ~/.vim/doc
-"set iskeyword+=.,-             " Additional chars allowed in keywords
+
+" Actual xterm termcap only supports 8 colors, but most terms that call
+" themselves xterm have at least 16 color support
+if &term == "xterm"
+    set t_Co=16
+endif
+
+" Konsole has a mostly undocumented way of specifying 24-bit colors, though we
+" can only use (slightly less than) 16-bit in vim
+if version >= 700 && (&term == "konsole" || &term == "konsole-16color")
+    " The max value that seems can be passed as a ctermfg or ctermbg is 65534,
+    " otherwise this would work.
+    "
+    " set t_Co=16777216
+    " set t_AF=[38;2;%p1%{65536}%\/%d;%p1%{256}%\/%{255}%&%d;%p1%{255}%&%dm
+    " set t_AB=[48;2;%p1%{65536}%\/%d;%p1%{256}%\/%{255}%&%d;%p1%{255}%&%dm
+
+    " Color values are encoded as follows:
+    "   Number in the range of 0-65534
+    "   red = upper 5 bits * 255 / 31
+    "   green = middle 6 bits * 255 / 63
+    "   blue = lowest 5 bits * 255 / 31
+    "
+    " Vim won't store 65535 as a color number, so white is indicated as 65534 as
+    " a special case
+
+    set t_Co=65536
+    set t_AB=[48;2;%p1%{2048}%\/%{255}%*%{31}%\/%d;%p1%{32}%\/%{63}%&%{255}%*%{63}%\/%d;%?%p1%{65534}%=%t%{255}%e%p1%{31}%&%{255}%*%{31}%\/%;%dm
+    set t_AF=[38;2;%p1%{2048}%\/%{255}%*%{31}%\/%d;%p1%{32}%\/%{63}%&%{255}%*%{63}%\/%d;%?%p1%{65534}%=%t%{255}%e%p1%{31}%&%{255}%*%{31}%\/%;%dm
+endif
+
+" ================================================================= " }}}
+
+" === Syntax highlighting and colors ============================== " {{{
+syntax enable
+set background=dark             " Assumes black terminal background
+if &t_Co >= 16777216
+    color fwiffo_24bit
+elseif &t_Co >= 65536
+    color fwiffo_16bit
+elseif &t_Co >= 256
+    color fwiffo_256
+elseif &t_Co >= 16
+    color fwiffo_16
+elseif &t_Co >=8
+    color fwiffo_8
+endif
+
+" No idea why I can't set this in my colors file
+if &t_Co >=8
+    hi Pmenu ctermfg=13 ctermbg=8 cterm=NONE
+    hi PmenuSel ctermfg=11 ctermbg=7 cterm=NONE
+endif
+" ================================================================= " }}}
+
+" === Non-interface options ======================================= " {{{
+set history=100                 " Remember 100 lines of history
+set nobackup                    " Don't create backup files
 set ttimeoutlen=100             " Make it so that <ESC>O doesn't hang there
-set laststatus=2                " Always show status line
-set visualbell                  " STOP THE BEEPING
-"set t_vb=                      " STOP THE FLASHING
-au! BufRead * set helpheight=5  " Make the help window a certain size
-" TODO: Fix so thsi works in python files and doesn't screw up diff mode
-" and works in multiple files
+set viminfo='200,<500,h         " Marks per file, lines per register, disable hlsearch on load
+
+" Continue where we left off on last edit and open folds at cursor
 autocmd BufReadPost *
     \ if line("'\"") > 0 && line("'\"") <= line("$") |
     \   exe 'normal g`"zvzz' |
     \ endif
-
 " ================================================================= " }}}
 
-" === Editing options (how to treat files, editor behavior) ======= " {{{
+" === Options for file contents and editing behavior ============== " {{{
+
 set fileformats=unix,dos,mac    " By default, it doesn't see mac files
 set fileencodings=fileencodings=ucs-bom,utf-8,default,cp1252,latin1
-set backspace=2                 " Make backspaces work
-set tabstop=8                   " <tab> stops at 8
-set softtabstop=4               " behave as if we have tabs for backspaces
-set shiftwidth=4                " (auto)indent width
-set expandtab                   " We don't want tabs by default
+set formatoptions+=2n           " Adds wrapping for lists, indented paragraphs
+set nrformats=hex,alpha         " Make ^X and ^A work with more things
 set whichwrap=<,>,h,l,[,],b,s   " Allow cursor to wrap in more situations
-set textwidth=78                " Wrap at 78 columns normally
-" I like modelines, but they are a potential security hole, so none for root
-if ($USER) == "root"
-    set nomodeline
-else
-    set modeline
-endif
-if version >= 600
-    set formatoptions+=2n       " Adds wrapping for lists, indented parag
-    set nrformats=hex,alpha     " Make ^X and ^A work with more things
-else
-    set nrformats=hex           " Make ^X and ^A work with more things
-endif
 
-" === Folding, scrolling, editing interface, etc. =================
-set showbreak=\\->              " make linebreaks obvious
-set nowrap                      " By default, don't use the above option
+set autoindent                  " Simple autoindent unless there is a plugin
+set backspace=2                 " Make backspaces work
+set expandtab                   " We don't want hard tabs by default
+set shiftwidth=4                " (auto)indent width
+set softtabstop=4               " Behave as if we have tabs for backspaces
+set tabstop=8                   " Hard <tab> stops at 8
+set textwidth=80                " Wrap at 78 columns normally
+
+" ================================================================= " }}}
+"
+" === Interface options =========================================== " {{{
+set ignorecase                  " Make searching easier
+set smartcase                   " Unless we're being specific
+
+set list                        " Make some stuff visible, see listchars below
+set listchars=trail:·,tab:▸—,extends:…,precedes:…
+set showbreak=↪\                " Linebreak char+space when wrapping long lines
+set nowrap                      " Down't wrap long lines by default
+
+set laststatus=2                " Always show status line
+set matchtime=3                 " I said BRIEF
+set showcmd                     " Show commands as you type them
+set showmatch                   " Brief jump to matching parens
+set visualbell                  " STOP THE BEEPING
+" set t_vb=                     " STOP THE FLASHING
+" set number                    " Turn on line numbers
+
+set scrolloff=2                 " Always have a line of context below/above
 set sidescroll=30               " Horozontally scroll by big chunks
-set sidescrolloff=2             " always have context left/right vixible
-set scrolloff=2                 " always have a line of context below/above
-set background=dark             " Assumes black terminal background
-set list                        " make some stuff visible, see listchars below
-if version >= 600
-    set listchars=precedes:<,extends:>,tab:>-,trail:~
-    set virtualedit=all         " Move through space virtually
-    syntax enable               " Turn on syntax highlighting
-    color phong                 " Get my color settings
-    " No idea why I can't set this in my colors file
-    hi Pmenu ctermfg=13 ctermbg=8 cterm=NONE
-    hi PmenuSel ctermfg=11 ctermbg=7 cterm=NONE
-else
-    set listchars=eol:\ ,extends:>,tab:>-
-    syntax on
-    so ~/.vim/colors/phong.vim  " This works in older versions of vim
-    hi Pmenu ctermfg=13 ctermbg=8 cterm=NONE
-    hi PmenuSel ctermfg=11 ctermbg=7 cterm=NONE
-endif
+set sidescrolloff=2             " Always have context left/right vixible
+
+set virtualedit=all             " Move through space virtually
+set wildmode=longest,list       " Behavior of tab key when hit first, second
+
+au! BufRead * set helpheight=5  " Make the help window a certain size
 
 set foldmethod=marker           " Default unless overried by a plugin
 if &diff
@@ -103,16 +142,6 @@ else
     set foldminlines=2          " Small folds are just bothersome
 endif
 " ================================================================= " }}}
-
-" function ListSyn()
-"     let id = 1
-"     let name = synIDattr(id, "name")
-"     while name != ""
-"         exe "normal! A" . name . "\n\e"
-"         let id = id + 1
-"         let name = synIDattr(id, "name")
-"     endwhile
-" endfunction
 
 " === Options for status line and window title ==================== " {{{
 function FileFlags()
@@ -147,7 +176,6 @@ set titlelen=0 title titlestring=%{title_front}%f\ %m%r%y%{FileFlags()}\ //\ %P
 
 " For TOhtml
 let html_use_css = 1
-let use_xhtml = 1
 
 " Options for syntax highlighting
 let perl_want_scope_in_variables = 1
@@ -163,31 +191,33 @@ autocmd BufRead *.xml set ft=xml
 
 filetype plugin indent on
 
-" Some controls over syntax highlighting and whatnot Some configurations that
-" vary depending on filetype, I wish I had the will power to unify these into
-" a single style
-autocmd FileType perl,python,vim,sh,c,cpp,htmlcheetah,javascript,css set sw=4 ts=8 sts=4 et ai
-autocmd FileType go set sw=4 ts=4 sts=4 noet ai
+" Most filetypes are one style
+autocmd FileType perl,python,vim,sh,sql,c,cpp,htmlcheetah,html,xml,xhtml,javascript,css set sw=4 ts=8 sts=4 et ai fo-=t fo+=rn
+
+" Go uses hard tabs
+autocmd FileType go set sw=4 ts=4 sts=4 noet
+
+" C and friends can use smartindent
 autocmd FileType c,cpp set si
-autocmd FileType grub,fstab,xf86conf set tw=0 ts=8 sts=8 sw=8 ai noet
-autocmd FileType conf set tw=0 ts=8 sts=8 sw=8 ai et
-autocmd FileType xhtml,html,xml set sw=4 ts=8 sts=4 noai tw=0 indentkeys=o,O
-autocmd FileType htmlcheetah,sql set tw=0
+
+" Certain Unix config files use hard tabs
+autocmd FileType grub,fstab,xf86conf,conf set ts=8 sts=8 sw=8 ai noet
+
+" Indentkeys are stupid by default in html and friends
+autocmd FileType html,xml,xhtml set indentkeys=o,O
 
 " Commentstrings for folds and such
-autocmd FileType python,perl,sh      set commentstring=\ #\ %s
-autocmd FileType htmlcheetah         set commentstring=##\ %s
-autocmd FileType vim                 set commentstring=\ \"\ %s
-autocmd FileType c,cpp,javascript    set commentstring=\ /*\ %s\ */
-autocmd FileType xhml,html,xhtml     set commentstring=\ <!--\ %s\ -->
-autocmd FileType sql                 set commentstring=\ --\ %s
+autocmd FileType python,perl,sh     set commentstring=\ #\ %s
+autocmd FileType htmlcheetah        set commentstring=##\ %s
+autocmd FileType vim                set commentstring=\ \"\ %s
+autocmd FileType c,cpp,javascript   set commentstring=\ /*\ %s\ */
+autocmd FileType xhml,html,xhtml    set commentstring=\ <!--\ %s\ -->
+autocmd FileType sql                set commentstring=\ --\ %s
 
 " Comment re-wrapping mappings
-autocmd FileType python,perl,sh      map g<C-J> ?^\s*[^ \t\#]<cr>jv/^\s*[^ \t\#]<cr>gq
-autocmd FileType vim                 map g<C-J> ?^\s*[^ \t\"]<cr>jv/^\s*[^ \t\"]<cr>gq
-autocmd FileType c,cpp               map g<C-J> ?^\s*\/?[^ \t\/]<cr>jv/^\s*\/?[^ \t\/]<cr>gq
-" Auto formatting options
-autocmd FileType c,cpp,perl,python,vim,sh set fo-=t fo+=rqn
+autocmd FileType python,perl,sh     map g<C-J> ?^\s*[^ \t\#]<cr>jv/^\s*[^ \t\#]<cr>gq
+autocmd FileType vim                map g<C-J> ?^\s*[^ \t\"]<cr>jv/^\s*[^ \t\"]<cr>gq
+autocmd FileType c,cpp              map g<C-J> ?^\s*\/?[^ \t\/]<cr>jv/^\s*\/?[^ \t\/]<cr>gq
 
 " ================================================================= " }}}
 
@@ -230,10 +260,10 @@ map! <C-W> <esc><C-W>
 map :W :w
 map :: :<C-F>
 map :S :s
+map :D :d
 
 " Make curly braces cooler
 inoremap {<CR> {<ESC>o}<ESC>O
-" inoremap {<Space> {<Space><Space>}<ESC>hi
 
 " Make qq and \\ be quick record and quick playback (@q is annoying to type)
 map <Leader><Leader> @q
@@ -241,26 +271,7 @@ map <Leader><Leader> @q
 " Misc. useful mappings
 map <Leader>= >iB
 map <Leader>- <iB
-
-function GetSyntaxName(line, col)
-    let l:synid = synID(a:line, a:col, 1)
-    let l:name = synIDattr(l:synid, "name")
-    let l:transname = synIDattr(synIDtrans(l:synid), "name")
-
-    if l:name == ""
-        let l:name = "[NONE]"
-    endif
-    if l:transname == ""
-        let l:transname = "Normal"
-    endif
-
-    return l:name . "/" . l:transname
-endfunction
-
-" map <Leader>h :echo "syntax = " . GetSyntaxName(line("."), col("."))<cr>
 map <silent> <Leader>f :filetype detect<cr>
-map <Leader>tab :%s/CREATE TABLE \(`\?\w\+`\?\) (/drop table if exists \1;\rCREATE TABLE \1 (/<cr>
-map <Leader>old :%s/ timestamp NOT NULL default CURRENT_TIMESTAMP on update CURRENT_TIMESTAMP/ timestamp/g<cr>:%s/ DEFAULT CHARSET=.\+;/;/g<cr>
 
 " Copy/paste for xwin
 map <Leader>c "+y
@@ -290,6 +301,20 @@ map <Up> <C-w>k
 map <Down> <C-w>j
 " ================================================================= " }}}
 
-source ~/.vim/vimrc_work_after.vim
-source ~/.vim/vimrc_local_after.vim
+" === GUI/gvim config ============================================= " {{{
+if has("gui_running")
+    set columns=250
+    set lines=60
+    if has("x11")
+        if has("gui_gtk2")
+            set guifont=Ubuntu\ Mono\ 10
+        else
+            set guifont=-*-Ubuntu\ Mono-medium-r-semi\ condensed-*-*-180-*-*-m-*-*
+        endif
+    else
+        set guifont=Ubuntu_Mono:h10:cDEFAULT
+    endif
+endif
+" ================================================================= " }}}
 
+source ~/.vim/vimrc_work_after.vim

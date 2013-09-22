@@ -1,10 +1,7 @@
-" vim:ts=4:sw=4:noet:
-" =================================================================
-" perl.vim - minor enhancements to vim's perl highlighting
-" Original author - Thomas Schumm <phong@phong.org>
-"
-" Last modified: 2003-11-17: Thomas Schumm <phong@phong.org>
-" =================================================================
+" ============================================================================
+" Author - Tom Schumm <phong@phong.org>
+" A few enhancements to perl's syntax highlighting
+" ============================================================================
 syn match perlSpecialChars /[!%^&\*\-+=\\|~;:,.<>?\/]/
 syn match perlSpecialChars /[ \t\r\n\'\"]\@<=x[ \t\r\n0-9]\@=/
 syn keyword perlTodo TODO: TBD: FIXME: XXX: contained
