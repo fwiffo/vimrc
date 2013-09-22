@@ -57,7 +57,9 @@ endif
 " === Syntax highlighting and colors ============================== " {{{
 syntax enable
 set background=dark             " Assumes black terminal background
-if &t_Co >= 16777216
+if has("gui_running")
+    color fwiffo_gui
+elseif &t_Co >= 16777216
     color fwiffo_24bit
 elseif &t_Co >= 65536
     color fwiffo_16bit
@@ -83,10 +85,17 @@ set ttimeoutlen=100             " Make it so that <ESC>O doesn't hang there
 set viminfo='200,<500,h         " Marks per file, lines per register, disable hlsearch on load
 
 " Continue where we left off on last edit and open folds at cursor
-autocmd BufReadPost *
-    \ if line("'\"") > 0 && line("'\"") <= line("$") |
-    \   exe 'normal g`"zvzz' |
-    \ endif
+function! ResCur()
+  if line("'\"") <= line("$")
+    normal! g`"zvzz
+    return 1
+  endif
+endfunction
+
+augroup resCur
+  autocmd!
+  autocmd BufWinEnter * call ResCur()
+augroup END
 " ================================================================= " }}}
 
 " === Options for file contents and editing behavior ============== " {{{
@@ -112,8 +121,8 @@ set ignorecase                  " Make searching easier
 set smartcase                   " Unless we're being specific
 
 set list                        " Make some stuff visible, see listchars below
-set listchars=trail:·,tab:▸—,extends:…,precedes:…
-set showbreak=↪\                " Linebreak char+space when wrapping long lines
+set listchars=trail:·,tab:►-,extends:…,precedes:…
+set showbreak=╰━►\             " Linebreak char+space when wrapping long lines
 set nowrap                      " Down't wrap long lines by default
 
 set laststatus=2                " Always show status line
