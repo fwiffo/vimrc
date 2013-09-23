@@ -4,3 +4,6 @@
 [submodule "thirdparty/codeschool"]
 	path = thirdparty/codeschool
 	url = https://github.com/29decibel/codeschool-vim-theme.git
+[submodule "thirdparty/distinguished"]
+	path = thirdparty/distinguished
+	url = https://github.com/Lokaltog/vim-distinguished.git

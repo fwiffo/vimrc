@@ -59,12 +59,16 @@ syntax enable
 set background=dark             " Assumes black terminal background
 if has("gui_running")
     color jellybeans
+    color fwiffo_addenda
 elseif &t_Co >= 16777216
     color jellybeans
+    color fwiffo_addenda
 elseif &t_Co >= 65536
     color jellybeans
+    color fwiffo_addenda
 elseif &t_Co >= 256
     color jellybeans
+    color fwiffo_addenda
 elseif &t_Co >= 16
     color fwiffo_16
 elseif &t_Co >=8
@@ -107,6 +111,7 @@ set shiftwidth=4                " (auto)indent width
 set softtabstop=4               " Behave as if we have tabs for backspaces
 set tabstop=8                   " Hard <tab> stops at 8
 set textwidth=80                " Wrap at 78 columns normally
+set colorcolumn=81,82,83,84,85,86,87,88,89,90,91,92,93,94,95,96,97,98,99,100
 
 " ================================================================= " }}}
 "
@@ -125,7 +130,9 @@ set showcmd                     " Show commands as you type them
 set showmatch                   " Brief jump to matching parens
 set visualbell                  " STOP THE BEEPING
 " set t_vb=                     " STOP THE FLASHING
-" set number                    " Turn on line numbers
+if &columns > 90
+    set number                  " Turn on line numbers
+endif
 
 set scrolloff=2                 " Always have a line of context below/above
 set sidescroll=30               " Horozontally scroll by big chunks
@@ -195,19 +202,21 @@ autocmd BufRead *.xml set ft=xml
 filetype plugin indent on
 
 " Most filetypes are one style
-autocmd FileType perl,python,vim,sh,sql,c,cpp,htmlcheetah,html,xml,xhtml,javascript,css set sw=4 ts=8 sts=4 et ai fo-=t fo+=rn
+autocmd FileType perl,python,vim,sh,sql,c,cpp,htmlcheetah,html,xml,xhtml,javascript,css set sw=4 ts=8 sts=4 et fo-=t fo+=rn
 
 " Go uses hard tabs
 autocmd FileType go set sw=4 ts=4 sts=4 noet
 
-" C and friends can use smartindent
-autocmd FileType c,cpp set si
 
 " Certain Unix config files use hard tabs
 autocmd FileType grub,fstab,xf86conf,conf set ts=8 sts=8 sw=8 ai noet
 
-" Indentkeys are stupid by default in html and friends
+" Indent behaviors
 autocmd FileType html,xml,xhtml set indentkeys=o,O
+autocmd FileType css set indentkeys-=: cinkeys-=:
+autocmd FileType c,cpp set cindent si ai
+autocmd FileType css,javascript,perl set nocindent si ai
+autocmd FileType python,vim,sql,sh,htmlcheetah,html,xml,xhtml set nocindent nosi ai
 
 " Commentstrings for folds and such
 autocmd FileType python,perl,sh     set commentstring=\ #\ %s
