@@ -7,3 +7,6 @@
 [submodule "thirdparty/distinguished"]
 	path = thirdparty/distinguished
 	url = https://github.com/Lokaltog/vim-distinguished.git
+[submodule "thirdparty/twilight256"]
+	path = thirdparty/twilight256
+	url = https://github.com/vim-scripts/twilight256.vim.git

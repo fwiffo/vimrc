@@ -130,9 +130,20 @@ set showcmd                     " Show commands as you type them
 set showmatch                   " Brief jump to matching parens
 set visualbell                  " STOP THE BEEPING
 " set t_vb=                     " STOP THE FLASHING
-if &columns > 90
-    set number                  " Turn on line numbers
-endif
+
+" Turn on line numbers but only if there is space. Has to be called on several
+" events to cover :split, etc.
+fun! WinSizeAutoNumber()
+    if winwidth(0) > 90
+        set number
+    else
+        set nonumber
+    endif
+endfunction
+call WinSizeAutoNumber()
+au VimResized * call WinSizeAutoNumber()
+au WinEnter * call WinSizeAutoNumber()
+au WinLeave * call WinSizeAutoNumber()
 
 set scrolloff=2                 " Always have a line of context below/above
 set sidescroll=30               " Horozontally scroll by big chunks
@@ -167,17 +178,10 @@ function FileFlags()
     endif
     return l:flags
 endfunction
-let dotpos = stridx($HOSTNAME, '.')
-if dotpos <= 0
-    let shorthost = $HOSTNAME
-else
-    let shorthost = strpart($HOSTNAME, 0, dotpos)
-endif
-let title_front = "|VIM|" . $USER . "@" . shorthost . "|"
-unlet dotpos shorthost
 
-"set ruler                       " Show col,row % on status line
 set statusline=%.47f\ %m%1*%r%*%y%{FileFlags()}\ %=%<%3b\ 0x%02B\ %10(%l,%=%2(%c%V%)%)\ %P
+
+let title_front = "⌨:" . $WINDOW_TITLE
 set titlelen=0 title titlestring=%{title_front}%f\ %m%r%y%{FileFlags()}\ //\ %P
 " ================================================================= " }}}
 
