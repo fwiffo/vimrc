@@ -4,14 +4,15 @@
 " ============================================================================
 let g:colors_name="fwiffo_addenda"
 
-hi ColorColumn ctermbg=233
-hi Normal ctermbg=0
-hi Todo ctermfg=215
+hi ColorColumn ctermbg=234
+hi NonText ctermbg=233
+hi LineNr ctermbg=233
+hi Todo ctermfg=172
 hi StatusLineNC ctermfg=243 ctermbg=236
-hi SpecialKey ctermbg=234 ctermfg=238
+hi SpecialKey ctermbg=233 ctermfg=239
 if ($USER) == "root"
     hi StatusLine ctermbg=167 cterm=NONE
-    hi User1 ctermfg 1 ctermbg=167 cterm=NONE
+    hi User1 ctermfg=1 ctermbg=167 cterm=NONE
 else
     hi StatusLine ctermbg=60 ctermfg=222 cterm=NONE
     hi User1 ctermfg=1 ctermbg=60 ctermfg=222 cterm=NONE
