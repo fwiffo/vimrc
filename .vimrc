@@ -57,6 +57,8 @@ endif
 " === Syntax highlighting and colors ============================== " {{{
 syntax enable
 set background=dark             " Assumes black terminal background
+let g:jellybeans_background_color="None"
+let g:jellybeans_background_color_256="None"
 if has("gui_running")
     color jellybeans
     color fwiffo_addenda
@@ -120,8 +122,8 @@ set ignorecase                  " Make searching easier
 set smartcase                   " Unless we're being specific
 
 set list                        " Make some stuff visible, see listchars below
-set listchars=trail:·,tab:►-,extends:…,precedes:…
-set showbreak=╰━►\             " Linebreak char+space when wrapping long lines
+set listchars=trail:💩,tab:►-,extends:…,precedes:…
+set showbreak=╰─►\              " Linebreak char+space when wrapping long lines
 set nowrap                      " Down't wrap long lines by default
 
 set laststatus=2                " Always show status line
@@ -179,10 +181,11 @@ function FileFlags()
     return l:flags
 endfunction
 
-set statusline=%.47f\ %m%1*%r%*%y%{FileFlags()}\ %=%<%3b\ 0x%02B\ %10(%l,%=%2(%c%V%)%)\ %P
+set statusline=%.67f\ %m%1*%r%*%y%{FileFlags()}\ %=%<%3b\ 0x%02B\ %10(%l,%=%2(%c%V%)%)\ %P
 
-let title_front = "⌨:" . $WINDOW_TITLE
-set titlelen=0 title titlestring=%{title_front}%f\ %m%r%y%{FileFlags()}\ //\ %P
+let title_prefix = "⌨:"
+let title_shell = " « " . $WINDOW_TITLE
+set titlelen=0 title titlestring=%{title_prefix}%f%{title_shell}\ %m%r%y%{FileFlags()}\ //\ %P
 " ================================================================= " }}}
 
 " === Per-filetype options ======================================== " {{{
@@ -200,8 +203,8 @@ let perl_no_sync_on_global_var = 1
 let python_highlight_all = 1
 
 " For some reason these haven't been automatic...
-autocmd BufRead *.xhtml set ft=xhtml
-autocmd BufRead *.xml set ft=xml
+autocmd BufRead,BufNewFile *.xhtml set ft=xhtml
+autocmd BufRead,BufNewFile *.xml set ft=xml
 
 filetype plugin indent on
 
@@ -210,7 +213,6 @@ autocmd FileType perl,python,vim,sh,sql,c,cpp,htmlcheetah,html,xml,xhtml,javascr
 
 " Go uses hard tabs
 autocmd FileType go set sw=4 ts=4 sts=4 noet
-
 
 " Certain Unix config files use hard tabs
 autocmd FileType grub,fstab,xf86conf,conf set ts=8 sts=8 sw=8 ai noet
@@ -221,6 +223,7 @@ autocmd FileType css set indentkeys-=: cinkeys-=:
 autocmd FileType c,cpp set cindent si ai
 autocmd FileType css,javascript,perl set nocindent si ai
 autocmd FileType python,vim,sql,sh,htmlcheetah,html,xml,xhtml set nocindent nosi ai
+autocmd FileType python set indentkeys-=: indentkeys-=<:>
 
 " Commentstrings for folds and such
 autocmd FileType python,perl,sh     set commentstring=\ #\ %s
@@ -258,6 +261,9 @@ inoremap <Tab> <C-R>=CleverTab()<CR>
 map <F1> <C-]>
 " Try as I might, I can never remember that <c-t> is back in help
 map <F2> <C-T>
+
+noremap <silent> <F8> :set cursorline!<CR>:set cursorcolumn!<CR>
+inoremap <silent> <F8> <C-O>:set cursorline!<CR><C-O>:set cursorcolumn!<CR>
 
 " Set pastetoggle and paragraph reformatting to useful keys
 set pastetoggle=<F9>
