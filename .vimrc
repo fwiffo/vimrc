@@ -57,8 +57,8 @@ endif
 " === Syntax highlighting and colors ============================== " {{{
 syntax enable
 set background=dark             " Assumes black terminal background
-let g:jellybeans_background_color="None"
-let g:jellybeans_background_color_256="None"
+let g:jellybeans_background_color="NONE"
+let g:jellybeans_background_color_256="NONE"
 if has("gui_running")
     color jellybeans
     color fwiffo_addenda
@@ -114,6 +114,7 @@ set softtabstop=4               " Behave as if we have tabs for backspaces
 set tabstop=8                   " Hard <tab> stops at 8
 set textwidth=80                " Wrap at 78 columns normally
 set colorcolumn=81,82,83,84,85,86,87,88,89,90,91,92,93,94,95,96,97,98,99,100
+set nojoinspaces                " Don't add two spaces after . when wrapping
 
 " ================================================================= " }}}
 "
@@ -122,7 +123,8 @@ set ignorecase                  " Make searching easier
 set smartcase                   " Unless we're being specific
 
 set list                        " Make some stuff visible, see listchars below
-set listchars=trail:💩,tab:►-,extends:…,precedes:…
+" set listchars=trail:💩,tab:►-,extends:…,precedes:…
+set listchars=trail:·,tab:►-,extends:…,precedes:…
 set showbreak=╰─►\              " Linebreak char+space when wrapping long lines
 set nowrap                      " Down't wrap long lines by default
 
@@ -227,7 +229,7 @@ autocmd FileType python set indentkeys-=: indentkeys-=<:>
 
 " Commentstrings for folds and such
 autocmd FileType python,perl,sh     set commentstring=\ #\ %s
-autocmd FileType htmlcheetah        set commentstring=##\ %s
+autocmd FileType htmlcheetah        set commentstring=\ ##\ %s
 autocmd FileType vim                set commentstring=\ \"\ %s
 autocmd FileType c,cpp,javascript   set commentstring=\ /*\ %s\ */
 autocmd FileType xhml,html,xhtml    set commentstring=\ <!--\ %s\ -->
@@ -235,8 +237,10 @@ autocmd FileType sql                set commentstring=\ --\ %s
 
 " Comment re-wrapping mappings
 autocmd FileType python,perl,sh     map g<C-J> ?^\s*[^ \t\#]<cr>jv/^\s*[^ \t\#]<cr>gq
+autocmd FileType htmlcheetah        map g<C-J> ?^\s*[^ \t\#]<cr>jv/^\s*[^ \t\#]<cr>gq
+autocmd FileType htmlcheetah        set comments^=:##
 autocmd FileType vim                map g<C-J> ?^\s*[^ \t\"]<cr>jv/^\s*[^ \t\"]<cr>gq
-autocmd FileType c,cpp              map g<C-J> ?^\s*\/?[^ \t\/]<cr>jv/^\s*\/?[^ \t\/]<cr>gq
+autocmd FileType c,cpp,javascript   map g<C-J> ?^\s*\/?[^ \t\/]<cr>jv/^\s*\/?[^ \t\/]<cr>gq
 
 " ================================================================= " }}}
 
